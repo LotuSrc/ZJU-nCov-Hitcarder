@@ -10,7 +10,15 @@ import os
 import sys
 import message
 import random
+import logging
+from tenacity import retry
+from tenacity.stop import stop_after_attempt
+from tenacity.wait import wait_random
+from tenacity.before_sleep import before_sleep_log
 
+
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class HitCarder(object):
     """Hit carder class
@@ -180,6 +188,7 @@ class DecodeError(Exception):
     pass
 
 
+@retry(stop=stop_after_attempt(3), wait=wait_random(min=2, max=4), before_sleep=before_sleep_log(logger, logging.DEBUG))
 def main(username, password):
     """Hit card process
 
